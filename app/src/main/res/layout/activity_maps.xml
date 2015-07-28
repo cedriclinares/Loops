@@ -1,7 +1,53 @@
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent"
-          android:id="@+id/map"
-          tools:context=".MapsActivity"
-          android:name="com.google.android.gms.maps.SupportMapFragment"/>
+<?xml version="1.0" encoding="utf-8"?>
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+     android:layout_height="fill_parent"
+     android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="15">
+
+        <android.inputmethodservice.ExtractEditText
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="Distance"
+            android:id="@+id/extractEditText"
+            android:background="@color/grey_light"
+            android:layout_weight="30"/>
+
+        <Spinner
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:id="@+id/spinner"
+            android:layout_weight="30"
+            android:background="@color/flat_blue"/>
+
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:text="Find Loops"
+            android:id="@+id/button"
+            android:layout_weight="30"
+            android:background="@color/green"
+            android:textColor="@color/turquoise"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="150"
+        android:orientation="vertical">
+
+        <fragment xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:id="@+id/map"
+              tools:context=".MapsActivity"
+              android:name="com.google.android.gms.maps.SupportMapFragment"
+            />
+    </LinearLayout>
+
+</LinearLayout>
