@@ -8,7 +8,7 @@
     <color name="grey_med_dark">#333</color>
     <color name="grey_med">#666</color>
     <color name="grey_light">#AAA</color>
-
+    <color name="red">#ff0000</color>
     <color name="turquoise">#ff22e9ff</color>
     <color name="flat_blue">#ff1a51f4</color>
 

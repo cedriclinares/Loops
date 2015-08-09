@@ -34,8 +34,15 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity {
 
@@ -43,11 +50,19 @@ public class MapsActivity extends AppCompatActivity {
     private Spinner mSpinner;
     private Button mButton;
     private GoogleMap mGoogleMap;
-    private String[] mAmountLoops = {"1", "2", "4", "6", "8"};
+    private String[] mAmountLoops = {"Amount Of Loops","1", "2", "4", "6", "8"};
     private String provider;
     private LocationManager locationManager;
     private GoogleApiClient mGoogleApiClient;
     private LocationListener mLocationListener;
+    private Polyline mPolyline;
+    private LatLngBounds mLatLngBounds;
+    private CameraPosition mCameraPosition;
+    private int width, height;
+    private boolean isTravelingToParis = false;
+    private static final LatLng AMSTERDAM = new LatLng(52.37518, 4.895439);
+    private static final LatLng PARIS = new LatLng(48.856132, 2.352448);
+    private static final LatLng FRANKFURT = new LatLng(50.111772, 8.682632);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,56 +143,59 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
+    public void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
+        PolylineOptions rectLine = new PolylineOptions().width(10).color(R.color.red);
 
-    private final class MyLocationListener implements LocationListener {
-
-        private Marker mMarker;
-        private Circle mCircle;
-        CameraPosition mCameraPosition;
-        @Override
-        public void onLocationChanged(Location location) {
-            // called when the listener is notified with a location update from the GPS
-           // Toast.makeText(this, "Location Changed", Toast.LENGTH_LONG).show();
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
-          //  Toast.makeText(this, "Location " + lat + "," + lng,
-          //          Toast.LENGTH_LONG).show();
-            LatLng coordinate = new LatLng(lat, lng);
-           // Toast.makeText(this, "Location " + coordinate.latitude + "," + coordinate.longitude,
-             //       Toast.LENGTH_LONG).show();
-            if (mCircle!=null) mCircle.remove();
-            mCircle = mGoogleMap.addCircle(new CircleOptions()
-                    .center(coordinate)
-                    .radius(1000)
-                    .fillColor(R.color.black));
-            mCameraPosition = new CameraPosition.Builder().target(coordinate)
-                    .zoom(15.5f)
-                    .bearing(0)
-                    .tilt(25)
-                    .build();
-            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-            /*mMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(coordinate)
-                    .title("Start")
-                    .snippet("Your Location")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));*/
+        for(int i = 0 ; i < directionPoints.size() ; i++)
+        {
+            rectLine.add(directionPoints.get(i));
+        }
+        if (mPolyline != null)
+        {
+            mPolyline.remove();
+        }
+        mPolyline = mGoogleMap.addPolyline(rectLine);
+        mCameraPosition = new CameraPosition.Builder().target(AMSTERDAM)
+                .zoom(15.5f)
+                .bearing(0)
+                .tilt(25)
+                .build();
+        if (isTravelingToParis)
+        {
+            mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, PARIS);
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mLatLngBounds, width, height, 150));
+        }
+        else
+        {
+            mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, FRANKFURT);
+            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
         }
 
-        @Override
-        public void onProviderDisabled(String provider) {
-            // called when the GPS provider is turned off (user turning off the GPS on the phone)
-        }
+    }
 
-        @Override
-        public void onProviderEnabled(String provider) {
-            // called when the GPS provider is turned on (user turning on the GPS on the phone)
-        }
+    public void findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, double toPositionDoubleLat, double toPositionDoubleLong, String mode)
+    {
+        Map<String, String> map = new HashMap<String, String>();
+        map.put(GetDirectionsAsyncTask.USER_CURRENT_LAT, String.valueOf(fromPositionDoubleLat));
+        map.put(GetDirectionsAsyncTask.USER_CURRENT_LONG, String.valueOf(fromPositionDoubleLong));
+        map.put(GetDirectionsAsyncTask.DESTINATION_LAT, String.valueOf(toPositionDoubleLat));
+        map.put(GetDirectionsAsyncTask.DESTINATION_LONG, String.valueOf(toPositionDoubleLong));
+        map.put(GetDirectionsAsyncTask.DIRECTIONS_MODE, mode);
 
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            // called when the status of the GPS provider changes
-        }
+        GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(this);
+        asyncTask.execute(map);
+    }
 
+    private LatLngBounds createLatLngBoundsObject(LatLng firstLocation, LatLng secondLocation)
+    {
+        if (firstLocation != null && secondLocation != null)
+        {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(firstLocation).include(secondLocation);
+
+            return builder.build();
+        }
+        return null;
     }
 
     @Override
@@ -204,6 +222,8 @@ public class MapsActivity extends AppCompatActivity {
         }
 
     }
+
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -235,5 +255,63 @@ public class MapsActivity extends AppCompatActivity {
             return false;
         }
     }
+
+private final class MyLocationListener implements LocationListener {
+
+        private Marker mMarker;
+        private Circle mCircle;
+        CameraPosition mCameraPosition;
+        private Polyline mPolyline;
+        @Override
+        public void onLocationChanged(Location location) {
+            // called when the listener is notified with a location update from the GPS
+           // Toast.makeText(this, "Location Changed", Toast.LENGTH_LONG).show();
+            double lat = location.getLatitude();
+            double lng = location.getLongitude();
+          //  Toast.makeText(this, "Location " + lat + "," + lng,
+          //          Toast.LENGTH_LONG).show();
+            LatLng coordinate = new LatLng(lat, lng);
+           // Toast.makeText(this, "Location " + coordinate.latitude + "," + coordinate.longitude,
+             //       Toast.LENGTH_LONG).show();
+            if (mCircle!=null) mCircle.remove();
+            mCircle = mGoogleMap.addCircle(new CircleOptions()
+                    .center(coordinate)
+                    .radius(1000)
+                    .fillColor(R.color.black));
+            mCameraPosition = new CameraPosition.Builder().target(coordinate)
+                    .zoom(15.5f)
+                    .bearing(0)
+                    .tilt(25)
+                    .build();
+            findDirections(52.37518, 4.895439, 48.856132, 2.352448, GMapV2Direction.MODE_WALKING );
+           /* mPolyline = mGoogleMap.addPolyline(new PolylineOptions()
+                    .add(coordinate,
+                            new LatLng(coordinate.latitude + 0.02, coordinate.longitude + .02))
+                    .geodesic(true));
+           mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));*/
+            /*mMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(coordinate)
+                    .title("Start")
+                    .snippet("Your Location")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));*/
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+            // called when the GPS provider is turned off (user turning off the GPS on the phone)
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+            // called when the GPS provider is turned on (user turning on the GPS on the phone)
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+            // called when the status of the GPS provider changes
+        }
+
+    }
 }
+
 
