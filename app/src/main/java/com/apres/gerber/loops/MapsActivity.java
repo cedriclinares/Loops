@@ -6,7 +6,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.*;
 import android.util.Log;
 import android.view.Menu;
@@ -17,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -58,8 +56,7 @@ public class MapsActivity extends AppCompatActivity {
     private Polyline mPolyline;
     private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
-    private int width, height;
-    private boolean isTravelingToParis = false;
+    private LatLng coordinate;
     private static final LatLng AMSTERDAM = new LatLng(52.37518, 4.895439);
     private static final LatLng PARIS = new LatLng(48.856132, 2.352448);
     private static final LatLng FRANKFURT = new LatLng(50.111772, 8.682632);
@@ -89,7 +86,7 @@ public class MapsActivity extends AppCompatActivity {
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = new MyLocationListener();
-        // Define the criteria how to select the locatioin provider -> use
+        // Define the criteria how to select the location in provider -> use
         // default
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
@@ -106,7 +103,7 @@ public class MapsActivity extends AppCompatActivity {
                 Toast.makeText(this, "Location is null" + provider,
                         Toast.LENGTH_SHORT).show();
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-               mLocationListener.onLocationChanged(location);
+                mLocationListener.onLocationChanged(location);
             }
         }
 
@@ -144,6 +141,7 @@ public class MapsActivity extends AppCompatActivity {
     }
 
     public void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
+
         PolylineOptions rectLine = new PolylineOptions().width(10).color(R.color.red);
 
         for(int i = 0 ; i < directionPoints.size() ; i++)
@@ -155,12 +153,15 @@ public class MapsActivity extends AppCompatActivity {
             mPolyline.remove();
         }
         mPolyline = mGoogleMap.addPolyline(rectLine);
-        mCameraPosition = new CameraPosition.Builder().target(AMSTERDAM)
+
+        mCameraPosition = new CameraPosition.Builder().target(coordinate)
                 .zoom(15.5f)
                 .bearing(0)
                 .tilt(25)
                 .build();
-        if (isTravelingToParis)
+
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
+        /*if (isTravelingToParis)
         {
             mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, PARIS);
             mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mLatLngBounds, width, height, 150));
@@ -169,7 +170,7 @@ public class MapsActivity extends AppCompatActivity {
         {
             mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, FRANKFURT);
             mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-        }
+        }*/
 
     }
 
@@ -256,34 +257,26 @@ public class MapsActivity extends AppCompatActivity {
         }
     }
 
-private final class MyLocationListener implements LocationListener {
+    private final class MyLocationListener implements LocationListener {
 
         private Marker mMarker;
         private Circle mCircle;
-        CameraPosition mCameraPosition;
-        private Polyline mPolyline;
+
         @Override
         public void onLocationChanged(Location location) {
             // called when the listener is notified with a location update from the GPS
-           // Toast.makeText(this, "Location Changed", Toast.LENGTH_LONG).show();
             double lat = location.getLatitude();
             double lng = location.getLongitude();
-          //  Toast.makeText(this, "Location " + lat + "," + lng,
-          //          Toast.LENGTH_LONG).show();
-            LatLng coordinate = new LatLng(lat, lng);
-           // Toast.makeText(this, "Location " + coordinate.latitude + "," + coordinate.longitude,
-             //       Toast.LENGTH_LONG).show();
+
+            coordinate = new LatLng(lat, lng);
+
             if (mCircle!=null) mCircle.remove();
             mCircle = mGoogleMap.addCircle(new CircleOptions()
                     .center(coordinate)
                     .radius(1000)
                     .fillColor(R.color.black));
-            mCameraPosition = new CameraPosition.Builder().target(coordinate)
-                    .zoom(15.5f)
-                    .bearing(0)
-                    .tilt(25)
-                    .build();
-            findDirections(52.37518, 4.895439, 48.856132, 2.352448, GMapV2Direction.MODE_WALKING );
+            findDirections(coordinate.latitude, coordinate.longitude,
+                    coordinate.latitude + 0.02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
            /* mPolyline = mGoogleMap.addPolyline(new PolylineOptions()
                     .add(coordinate,
                             new LatLng(coordinate.latitude + 0.02, coordinate.longitude + .02))
