@@ -148,10 +148,10 @@ public class MapsActivity extends AppCompatActivity {
         {
             rectLine.add(directionPoints.get(i));
         }
-        if (mPolyline != null)
+        /*if (mPolyline != null)
         {
             mPolyline.remove();
-        }
+        }*/
         mPolyline = mGoogleMap.addPolyline(rectLine);
 
         mCameraPosition = new CameraPosition.Builder().target(coordinate)
@@ -277,6 +277,12 @@ public class MapsActivity extends AppCompatActivity {
                     .fillColor(R.color.black));
             findDirections(coordinate.latitude, coordinate.longitude,
                     coordinate.latitude + 0.02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
+            findDirections(coordinate.latitude + 0.02, coordinate.longitude + .02,
+                    coordinate.latitude, coordinate.longitude + .04, GMapV2Direction.MODE_WALKING );
+            findDirections(coordinate.latitude, coordinate.longitude + .04,
+                    coordinate.latitude - .02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
+            findDirections(coordinate.latitude - .02, coordinate.longitude + .02,
+                    coordinate.latitude, coordinate.longitude, GMapV2Direction.MODE_WALKING );
            /* mPolyline = mGoogleMap.addPolyline(new PolylineOptions()
                     .add(coordinate,
                             new LatLng(coordinate.latitude + 0.02, coordinate.longitude + .02))
