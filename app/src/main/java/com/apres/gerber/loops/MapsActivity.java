@@ -261,38 +261,47 @@ public class MapsActivity extends AppCompatActivity {
 
         private Marker mMarker;
         private Circle mCircle;
+        private float radOfEarth = 3959;
+        private LatLng point2;
 
         @Override
         public void onLocationChanged(Location location) {
             // called when the listener is notified with a location update from the GPS
             double lat = location.getLatitude();
             double lng = location.getLongitude();
-
+           // String input = mEditDistance.getText().toString();
+            //double circumference = Double.parseDouble(input);
+            //float distance = (float) (circumference/Math.PI);
+            double distance = 2;
+            double changeInLat = distance/radOfEarth;
+            changeInLat = (float) Math.toDegrees(changeInLat);
             coordinate = new LatLng(lat, lng);
+            point2 = new LatLng(lat - changeInLat, lng);
 
             if (mCircle!=null) mCircle.remove();
             mCircle = mGoogleMap.addCircle(new CircleOptions()
                     .center(coordinate)
                     .radius(1000)
                     .fillColor(R.color.black));
+            mMarker = mGoogleMap.addMarker(new MarkerOptions()
+                    .position(point2)
+                    .title("Start")
+                    .snippet("Your Location")
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));
             findDirections(coordinate.latitude, coordinate.longitude,
-                    coordinate.latitude + 0.02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
-            findDirections(coordinate.latitude + 0.02, coordinate.longitude + .02,
-                    coordinate.latitude, coordinate.longitude + .04, GMapV2Direction.MODE_WALKING );
-            findDirections(coordinate.latitude, coordinate.longitude + .04,
-                    coordinate.latitude - .02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
-            findDirections(coordinate.latitude - .02, coordinate.longitude + .02,
-                    coordinate.latitude, coordinate.longitude, GMapV2Direction.MODE_WALKING );
+                    coordinate.latitude - changeInLat, coordinate.longitude, GMapV2Direction.MODE_WALKING );
+            //findDirections(coordinate.latitude + 0.02, coordinate.longitude + .02,
+            //        coordinate.latitude, coordinate.longitude + .04, GMapV2Direction.MODE_WALKING );
+           // findDirections(coordinate.latitude, coordinate.longitude + .04,
+            //        coordinate.latitude - .02, coordinate.longitude + .02, GMapV2Direction.MODE_WALKING );
+            //findDirections(coordinate.latitude - .02, coordinate.longitude + .02,
+            //        coordinate.latitude, coordinate.longitude, GMapV2Direction.MODE_WALKING );
            /* mPolyline = mGoogleMap.addPolyline(new PolylineOptions()
                     .add(coordinate,
                             new LatLng(coordinate.latitude + 0.02, coordinate.longitude + .02))
                     .geodesic(true));
            mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));*/
-            /*mMarker = mGoogleMap.addMarker(new MarkerOptions()
-                    .position(coordinate)
-                    .title("Start")
-                    .snippet("Your Location")
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));*/
+
         }
 
         @Override
