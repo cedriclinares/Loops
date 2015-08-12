@@ -7,6 +7,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v7.app.*;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,6 +36,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity {
@@ -52,9 +54,7 @@ public class MapsActivity extends AppCompatActivity {
     private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
     private LatLng point1;
-    private static final LatLng AMSTERDAM = new LatLng(52.37518, 4.895439);
-    private static final LatLng PARIS = new LatLng(48.856132, 2.352448);
-    private static final LatLng FRANKFURT = new LatLng(50.111772, 8.682632);
+    private Map<String , Polyline> mHashMap = new HashMap<String , Polyline>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,30 +141,10 @@ public class MapsActivity extends AppCompatActivity {
         {
             rectLine.add(directionPoints.get(i));
         }
-        /*if (mPolyline != null)
-        {
-            mPolyline.remove();
-        }*/
-        mPolyline = mGoogleMap.addPolyline(rectLine);
 
-        mCameraPosition = new CameraPosition.Builder().target(point1)
-                .zoom(15.5f)
-                .bearing(0)
-                .tilt(25)
-                .build();
+        mPolyline = this.mGoogleMap.addPolyline(rectLine);
 
-        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-        /*if (isTravelingToParis)
-        {
-            mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, PARIS);
-            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngBounds(mLatLngBounds, width, height, 150));
-        }
-        else
-        {
-            mLatLngBounds = createLatLngBoundsObject(AMSTERDAM, FRANKFURT);
-            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-        }*/
-
+        mHashMap.put(mPolyline.getId() , mPolyline);
     }
 
     public void findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, double toPositionDoubleLat, double toPositionDoubleLong, String mode)
@@ -268,41 +248,46 @@ public class MapsActivity extends AppCompatActivity {
             // called when the listener is notified with a location update from the GPS
             double lat = location.getLatitude();
             double lng = location.getLongitude();
+
             String input = mEditDistance.getText().toString();
             double circumference = Double.parseDouble(input);
-            float distance = (float) (circumference/Math.PI);
-            float changeInLat = (float) Math.toDegrees(distance/radOfEarth);
-            float changeInLng = (float) Math.toDegrees(.5*distance/radOfEarth);
+
+            float distance = (float) (circumference / Math.PI);
+            float changeInLat = (float) Math.toDegrees(distance / radOfEarth);
+            float changeInLng = (float) Math.toDegrees(.5 * distance / radOfEarth);
+
             point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat - changeInLat/2, lng - changeInLng);
+            LatLng point2 = new LatLng(lat - changeInLat / 2, lng - changeInLng);
             LatLng point3 = new LatLng(lat - changeInLat, lng);
-            LatLng point4 = new LatLng(lat - changeInLat/2, lng + changeInLng);
+            LatLng point4 = new LatLng(lat - changeInLat / 2, lng + changeInLng);
 
-            /*if (mCircle!=null) mCircle.remove();
-            mCircle = mGoogleMap.addCircle(new CircleOptions()
-                    .center(point1)
-                    .radius(1000)
-                    .fillColor(R.color.black));*/
+            if (mPolyline != null){
+                mGoogleMap.clear();
+             }
+            else
+                Log.d("Polyline", "null");
 
-            addMarker(point1,1);
-            addMarker(point2,2);
-            addMarker(point3,3);
-            addMarker(point4,4);
+            addMarker(point1, 1);
+            addMarker(point2, 2);
+            addMarker(point3, 3);
+            addMarker(point4, 4);
 
             findDirections(point1.latitude, point1.longitude,
-                    point2.latitude, point2.longitude, GMapV2Direction.MODE_WALKING );
+                    point2.latitude, point2.longitude, GMapV2Direction.MODE_WALKING);
             findDirections(point2.latitude, point2.longitude,
                     point3.latitude, point3.longitude, GMapV2Direction.MODE_WALKING );
             findDirections(point3.latitude, point3.longitude,
                     point4.latitude, point4.longitude, GMapV2Direction.MODE_WALKING );
             findDirections(point4.latitude, point4.longitude,
                     point1.latitude, point1.longitude, GMapV2Direction.MODE_WALKING );
-           /* mPolyline = mGoogleMap.addPolyline(new PolylineOptions()
-                    .add(point1,
-                            new LatLng(point1.latitude + 0.02, point1.longitude + .02))
-                    .geodesic(true));
-           mGoogleMap.moveCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));*/
 
+            mCameraPosition = new CameraPosition.Builder().target(point1)
+                    .zoom(15.5f)
+                    .bearing(0)
+                    .tilt(25)
+                    .build();
+
+            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
         }
 
         @Override
