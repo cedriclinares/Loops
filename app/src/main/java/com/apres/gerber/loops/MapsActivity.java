@@ -1,6 +1,7 @@
 package com.apres.gerber.loops;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -36,7 +37,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity {
@@ -53,8 +53,7 @@ public class MapsActivity extends AppCompatActivity {
     private Polyline mPolyline;
     private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
-    private LatLng point1;
-    private Map<String , Polyline> mHashMap = new HashMap<String , Polyline>();
+   // private LatLng point1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,7 +134,7 @@ public class MapsActivity extends AppCompatActivity {
 
     public void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
 
-        PolylineOptions rectLine = new PolylineOptions().width(10).color(R.color.red);
+        PolylineOptions rectLine = new PolylineOptions().width(10).color(Color.RED);
 
         for(int i = 0 ; i < directionPoints.size() ; i++)
         {
@@ -144,7 +143,6 @@ public class MapsActivity extends AppCompatActivity {
 
         mPolyline = this.mGoogleMap.addPolyline(rectLine);
 
-        mHashMap.put(mPolyline.getId() , mPolyline);
     }
 
     public void findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, double toPositionDoubleLat, double toPositionDoubleLong, String mode)
@@ -204,15 +202,15 @@ public class MapsActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
 
-            case R.id.mnu_invert:
+            case R.id.option1:
                 //TODO add what to do
                 break;
 
-            case R.id.mnu_codes:
+            case R.id.option2:
                 //TODO add what to do
                 break;
 
-            case R.id.mnu_exit:
+            case R.id.option3:
                 //TODO add what to do
                 break;
         }
@@ -238,6 +236,37 @@ public class MapsActivity extends AppCompatActivity {
                 .snippet("Lat: "+ point.latitude+" Lng: "+ point.longitude)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));
     }
+
+    private void makeLoop (ArrayList<LatLng> circle){
+        findDirections(circle.get(0).latitude, circle.get(0).longitude,
+                circle.get(1).latitude, circle.get(1).longitude, GMapV2Direction.MODE_WALKING);
+        findDirections(circle.get(1).latitude, circle.get(1).longitude,
+                circle.get(2).latitude, circle.get(2).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(2).latitude, circle.get(2).longitude,
+                circle.get(3).latitude, circle.get(3).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(3).latitude, circle.get(3).longitude,
+                circle.get(4).latitude, circle.get(4).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(4).latitude, circle.get(4).longitude,
+                circle.get(5).latitude, circle.get(5).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(5).latitude, circle.get(5).longitude,
+                circle.get(6).latitude, circle.get(6).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(6).latitude, circle.get(6).longitude,
+                circle.get(7).latitude, circle.get(7).longitude, GMapV2Direction.MODE_WALKING );
+        findDirections(circle.get(7).latitude, circle.get(7).longitude,
+                circle.get(0).latitude, circle.get(0).longitude, GMapV2Direction.MODE_WALKING );
+
+        addMarker(circle.get(0), 1);
+        addMarker(circle.get(1), 2);
+        addMarker(circle.get(2), 3);
+        addMarker(circle.get(3), 4);
+        addMarker(circle.get(4), 5);
+        addMarker(circle.get(5), 6);
+        addMarker(circle.get(6), 7);
+        addMarker(circle.get(7), 8);
+
+    }
+
+
     private final class MyLocationListener implements LocationListener {
 
         private Circle mCircle;
@@ -250,38 +279,25 @@ public class MapsActivity extends AppCompatActivity {
             double lng = location.getLongitude();
 
             String input = mEditDistance.getText().toString();
+            //TODO catch null input error
+
             double circumference = Double.parseDouble(input);
 
             float distance = (float) (circumference / Math.PI);
             float changeInLat = (float) Math.toDegrees(distance / radOfEarth);
-            float changeInLng = (float) Math.toDegrees(.5 * distance / radOfEarth);
+            float changeInLng = (float) Math.toDegrees(distance / radOfEarth);
 
-            point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat - changeInLat / 2, lng - changeInLng);
-            LatLng point3 = new LatLng(lat - changeInLat, lng);
-            LatLng point4 = new LatLng(lat - changeInLat / 2, lng + changeInLng);
+
 
             if (mPolyline != null){
                 mGoogleMap.clear();
              }
-            else
-                Log.d("Polyline", "null");
 
-            addMarker(point1, 1);
-            addMarker(point2, 2);
-            addMarker(point3, 3);
-            addMarker(point4, 4);
 
-            findDirections(point1.latitude, point1.longitude,
-                    point2.latitude, point2.longitude, GMapV2Direction.MODE_WALKING);
-            findDirections(point2.latitude, point2.longitude,
-                    point3.latitude, point3.longitude, GMapV2Direction.MODE_WALKING );
-            findDirections(point3.latitude, point3.longitude,
-                    point4.latitude, point4.longitude, GMapV2Direction.MODE_WALKING );
-            findDirections(point4.latitude, point4.longitude,
-                    point1.latitude, point1.longitude, GMapV2Direction.MODE_WALKING );
+            makeLoop(southLoop(lat,lng,changeInLat,changeInLng));
 
-            mCameraPosition = new CameraPosition.Builder().target(point1)
+            LatLng camera = new LatLng(lat,lng);
+            mCameraPosition = new CameraPosition.Builder().target(camera)
                     .zoom(15.5f)
                     .bearing(0)
                     .tilt(25)
@@ -304,6 +320,32 @@ public class MapsActivity extends AppCompatActivity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // called when the status of the GPS provider changes
         }
+
+        private ArrayList<LatLng> southLoop (double lat, double lng, float changeInLat, float changeInLng){
+            ArrayList<LatLng> circle = new ArrayList<LatLng>();
+            float constant = (float) Math.sqrt(2)/2;
+
+            LatLng point1 = new LatLng(lat, lng);
+            LatLng point2 = new LatLng(lat - changeInLat*(1-constant)/2, lng - changeInLng*constant/2);
+            LatLng point3 = new LatLng(lat - changeInLat/2, lng - changeInLng/2);
+            LatLng point4 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng - changeInLng*constant/2);
+            LatLng point5 = new LatLng(lat - changeInLat, lng);
+            LatLng point6 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng + changeInLng*constant/2);
+            LatLng point7 = new LatLng(lat - changeInLat/2, lng + changeInLng/2);
+            LatLng point8 = new LatLng(lat - changeInLat*(1-constant)/2, lng + changeInLng*constant/2);
+
+            circle.add(0, point1);
+            circle.add(1, point2);
+            circle.add(2, point3);
+            circle.add(3, point4);
+            circle.add(4, point5);
+            circle.add(5, point6);
+            circle.add(6, point7);
+            circle.add(7, point8);
+
+            return circle;
+        }
+
 
     }
 }
