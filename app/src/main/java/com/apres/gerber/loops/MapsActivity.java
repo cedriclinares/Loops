@@ -168,9 +168,6 @@ public class MapsActivity extends AppCompatActivity {
             case R.id.edt_text:
                 //Log.w("edt_text", "clicked");
                 break;
-            case R.id.loop_spinner:
-                //TODO Do something
-                break;
             case R.id.loop_button:
                 //TODO Do something
                 break;
@@ -257,12 +254,17 @@ public class MapsActivity extends AppCompatActivity {
         private Circle mCircle;
         private final float radOfEarth = 3959;
         private final float constant = (float) Math.sqrt(2)/2;
-
+        private double lat;
+        private double lng;
+        private float changeInLat;
+        private float changeInLng;
+        int clicks = 0;
         @Override
         public void onLocationChanged(Location location) {
             // called when the listener is notified with a location update from the GPS
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
+            clicks = 0;
+            lat = location.getLatitude();
+            lng = location.getLongitude();
 
             String input = mEditDistance.getText().toString();
             //TODO catch null input error
@@ -270,8 +272,8 @@ public class MapsActivity extends AppCompatActivity {
             double circumference = Double.parseDouble(input);
 
             float distance = (float) (circumference / Math.PI);
-            float changeInLat = (float) Math.toDegrees(distance / radOfEarth);
-            float changeInLng = (float) Math.toDegrees(distance / radOfEarth);
+            changeInLat = (float) Math.toDegrees(distance / radOfEarth);
+            changeInLng = (float) Math.toDegrees(distance / radOfEarth);
 
 
 
@@ -297,12 +299,40 @@ public class MapsActivity extends AppCompatActivity {
             mNext.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    clicks++;
                     mGoogleMap.clear();
-                    
-
+                    switch (clicks%4){
+                        case 0:makeLoop(southLoop(lat,lng,changeInLat, changeInLng));
+                          break;
+                        case 1:makeLoop(eastLoop(lat,lng,changeInLat, changeInLng));
+                            break;
+                        case 2:makeLoop(northLoop(lat,lng,changeInLat, changeInLng));
+                            break;
+                        case 3:makeLoop(westLoop(lat,lng,changeInLat, changeInLng));
+                    }
                 }
             });
 
+            mPrev.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clicks--;
+                    mGoogleMap.clear();
+                    switch (clicks%4) {
+                        case 0:
+                            makeLoop(southLoop(lat, lng, changeInLat, changeInLng));
+                            break;
+                        case 1:
+                            makeLoop(eastLoop(lat, lng, changeInLat, changeInLng));
+                            break;
+                        case 2:
+                            makeLoop(northLoop(lat, lng, changeInLat, changeInLng));
+                            break;
+                        case 3:
+                            makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
+                    }
+                }
+            });
         }
 
         @Override
