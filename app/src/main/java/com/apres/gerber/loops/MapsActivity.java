@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -69,6 +70,7 @@ public class MapsActivity extends AppCompatActivity {
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
 
+
         mEditDistance = (EditText) findViewById(R.id.edt_text);
         mButton = (Button) findViewById(R.id.loop_button);
         mNext = (Button) findViewById(R.id.next);
@@ -99,20 +101,22 @@ public class MapsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
            Location location = locationManager.getLastKnownLocation(provider);
-              // Initialize the location fields
-                if (locationManager!=null) {
-                    if (location != null) {
-                      //  Toast.makeText(this, "Selected Provider " + provider,
-                             //   Toast.LENGTH_SHORT).show();
-                        mLocationListener.onLocationChanged(location);
-                    } else {
-                        //Toast.makeText(this, "Location is null" + provider,
-                             //   Toast.LENGTH_SHORT).show();
-                        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-                        mLocationListener.onLocationChanged(location);
+
+                try {
+                    Double.parseDouble(mEditDistance.getText().toString());
+                    // Initialize the location fields
+                    if (locationManager!=null) {
+                        if (location != null) {
+                            mLocationListener.onLocationChanged(location);
+                        } else {
+                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
+                            mLocationListener.onLocationChanged(location);
+                        }
                     }
+                } catch (NumberFormatException e) {
+                    Log.i("Check EditText","Input is not a number");
+                    Toast.makeText(MapsActivity.this, "Must input a number", Toast.LENGTH_LONG).show();
                 }
-                // Toast.makeText(MapsActivity.this, "Loops Button Pressed", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -130,13 +134,26 @@ public class MapsActivity extends AppCompatActivity {
 
     }
 
-    public void findDirections(double fromPositionDoubleLat, double fromPositionDoubleLong, double toPositionDoubleLat, double toPositionDoubleLong, String mode)
+    public void findDirections(ArrayList <LatLng> circle, String mode)
     {
         Map<String, String> map = new HashMap<String, String>();
-        map.put(GetDirectionsAsyncTask.USER_CURRENT_LAT, String.valueOf(fromPositionDoubleLat));
-        map.put(GetDirectionsAsyncTask.USER_CURRENT_LONG, String.valueOf(fromPositionDoubleLong));
-        map.put(GetDirectionsAsyncTask.DESTINATION_LAT, String.valueOf(toPositionDoubleLat));
-        map.put(GetDirectionsAsyncTask.DESTINATION_LONG, String.valueOf(toPositionDoubleLong));
+
+        map.put(GetDirectionsAsyncTask.USER_CURRENT_LAT, String.valueOf(circle.get(0).latitude));
+        map.put(GetDirectionsAsyncTask.USER_CURRENT_LONG, String.valueOf(circle.get(0).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint1_Lat, String.valueOf(circle.get(1).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint1_Long, String.valueOf(circle.get(1).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint2_Lat, String.valueOf(circle.get(2).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint2_Long, String.valueOf(circle.get(2).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint3_Lat, String.valueOf(circle.get(3).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint3_Long, String.valueOf(circle.get(3).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint4_Lat, String.valueOf(circle.get(4).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint4_Long, String.valueOf(circle.get(4).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint5_Lat, String.valueOf(circle.get(5).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint5_Long, String.valueOf(circle.get(5).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint6_Lat, String.valueOf(circle.get(6).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint6_Long, String.valueOf(circle.get(6).longitude));
+        map.put(GetDirectionsAsyncTask.Waypoint7_Lat, String.valueOf(circle.get(7).latitude));
+        map.put(GetDirectionsAsyncTask.Waypoint7_Long, String.valueOf(circle.get(7).longitude));
         map.put(GetDirectionsAsyncTask.DIRECTIONS_MODE, mode);
 
         GetDirectionsAsyncTask asyncTask = new GetDirectionsAsyncTask(this);
@@ -176,7 +193,6 @@ public class MapsActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     @Override
@@ -220,32 +236,15 @@ public class MapsActivity extends AppCompatActivity {
     }
 
     private void makeLoop (ArrayList<LatLng> circle){
-        findDirections(circle.get(0).latitude, circle.get(0).longitude,
-                circle.get(1).latitude, circle.get(1).longitude, GMapV2Direction.MODE_WALKING);
-        findDirections(circle.get(1).latitude, circle.get(1).longitude,
-                circle.get(2).latitude, circle.get(2).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(2).latitude, circle.get(2).longitude,
-                circle.get(3).latitude, circle.get(3).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(3).latitude, circle.get(3).longitude,
-                circle.get(4).latitude, circle.get(4).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(4).latitude, circle.get(4).longitude,
-                circle.get(5).latitude, circle.get(5).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(5).latitude, circle.get(5).longitude,
-                circle.get(6).latitude, circle.get(6).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(6).latitude, circle.get(6).longitude,
-                circle.get(7).latitude, circle.get(7).longitude, GMapV2Direction.MODE_WALKING );
-        findDirections(circle.get(7).latitude, circle.get(7).longitude,
-                circle.get(0).latitude, circle.get(0).longitude, GMapV2Direction.MODE_WALKING );
-
+        findDirections(circle, GMapV2Direction.MODE_WALKING);
         addMarker(circle.get(0), 1);
-        addMarker(circle.get(1), 2);
+        /*addMarker(circle.get(1), 2);
         addMarker(circle.get(2), 3);
         addMarker(circle.get(3), 4);
         addMarker(circle.get(4), 5);
         addMarker(circle.get(5), 6);
         addMarker(circle.get(6), 7);
-        addMarker(circle.get(7), 8);
-
+        addMarker(circle.get(7), 8);*/
     }
 
 
@@ -259,18 +258,19 @@ public class MapsActivity extends AppCompatActivity {
         private float changeInLat;
         private float changeInLng;
         int clicks = 0;
+
         @Override
         public void onLocationChanged(Location location) {
             // called when the listener is notified with a location update from the GPS
-            clicks = 0;
+            clicks = 128;
             lat = location.getLatitude();
             lng = location.getLongitude();
 
+
+
             String input = mEditDistance.getText().toString();
-            //TODO catch null input error
 
             double circumference = Double.parseDouble(input);
-
             float distance = (float) (circumference / Math.PI);
             changeInLat = (float) Math.toDegrees(distance / radOfEarth);
             changeInLng = (float) Math.toDegrees(distance / radOfEarth);
