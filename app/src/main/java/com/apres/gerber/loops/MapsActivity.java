@@ -44,18 +44,28 @@ public class MapsActivity extends AppCompatActivity {
 
     private EditText mEditDistance;
     private Button mButton;
+    private Button mSubmit;
     private Button mNext;
     private Button mPrev;
     private GoogleMap mGoogleMap;
-    private String[] mAmountLoops = {"Amount Of Loops","1", "2", "4", "6", "8"};
     private String provider;
     private LocationManager locationManager;
+    private Location location;
     private GoogleApiClient mGoogleApiClient;
     private LocationListener mLocationListener;
+    PolylineOptions rectLine;
     private Polyline mPolyline;
     private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
-   // private LatLng point1;
+    private Marker mMarker;
+
+    private final float radOfEarth = 3959;
+    private final float constant = (float) Math.sqrt(2) / 2;
+    private double lat;
+    private double lng;
+    private float changeInLat;
+    private float changeInLng;
+    int clicks = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +82,7 @@ public class MapsActivity extends AppCompatActivity {
 
 
         mEditDistance = (EditText) findViewById(R.id.edt_text);
+        mSubmit = (Button) findViewById(R.id.Submit);
         mButton = (Button) findViewById(R.id.loop_button);
         mNext = (Button) findViewById(R.id.next);
         mPrev = (Button) findViewById(R.id.prev);
@@ -90,6 +101,16 @@ public class MapsActivity extends AppCompatActivity {
         provider = locationManager.getBestProvider(criteria, false);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
 
+        location = locationManager.getLastKnownLocation(provider);
+
+        LatLng camera = new LatLng(location.getLatitude(),location.getLongitude());
+        mCameraPosition = new CameraPosition.Builder().target(camera)
+                .zoom(15.5f)
+                .bearing(0)
+                .tilt(25)
+                .build();
+        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
+
         mEditDistance.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -100,30 +121,36 @@ public class MapsActivity extends AppCompatActivity {
         mButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-           Location location = locationManager.getLastKnownLocation(provider);
+                location = locationManager.getLastKnownLocation(provider);
 
                 try {
                     Double.parseDouble(mEditDistance.getText().toString());
                     // Initialize the location fields
-                    if (locationManager!=null) {
-                        if (location != null) {
-                            mLocationListener.onLocationChanged(location);
-                        } else {
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-                            mLocationListener.onLocationChanged(location);
-                        }
+                        if (location != null)
+                            calcLoop();
+                        else
+                            Toast.makeText(MapsActivity.this, "Cannot Find Location", Toast.LENGTH_LONG).show();
                     }
-                } catch (NumberFormatException e) {
+                 catch (NumberFormatException e) {
                     Log.i("Check EditText","Input is not a number");
                     Toast.makeText(MapsActivity.this, "Must input a number", Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        mSubmit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MapsActivity.this, "Submit clicked", Toast.LENGTH_LONG).show();
+                location = locationManager.getLastKnownLocation(provider);
+                mLocationListener.onLocationChanged(location);
             }
         });
     }
 
     public void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
 
-        PolylineOptions rectLine = new PolylineOptions().width(10).color(Color.RED);
+        rectLine = new PolylineOptions().width(10).color(Color.RED);
 
         for(int i = 0 ; i < directionPoints.size() ; i++)
         {
@@ -179,22 +206,6 @@ public class MapsActivity extends AppCompatActivity {
         return true;
     }
 
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-        switch (parent.getId()) {
-            case R.id.edt_text:
-                //Log.w("edt_text", "clicked");
-                break;
-            case R.id.loop_button:
-                //TODO Do something
-                break;
-            default:
-                break;
-        }
-
-    }
-
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -228,10 +239,10 @@ public class MapsActivity extends AppCompatActivity {
 
 
     private void addMarker(LatLng point, int order){
-       Marker mMarker = mGoogleMap.addMarker(new MarkerOptions()
+        mMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(point)
-                .title("This is point"+order)
-                .snippet("Lat: "+ point.latitude+" Lng: "+ point.longitude)
+                .title("This is point" + order)
+                .snippet("Lat: " + point.latitude + " Lng: " + point.longitude)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher)));
     }
 
@@ -247,92 +258,81 @@ public class MapsActivity extends AppCompatActivity {
         addMarker(circle.get(7), 8);*/
     }
 
+    private void calcLoop(){
+        clicks = 128;
+        lat = location.getLatitude();
+        lng = location.getLongitude();
+
+
+        String input = mEditDistance.getText().toString();
+
+        double circumference = Double.parseDouble(input);
+        float distance = (float) (circumference / Math.PI);
+        changeInLat = (float) Math.toDegrees(distance / radOfEarth);
+        changeInLng = (float) Math.toDegrees(distance / radOfEarth);
+
+
+        if (mPolyline != null) {
+            mGoogleMap.clear();
+        }
+
+
+        makeLoop(southLoop(lat, lng, changeInLat, changeInLng));
+
+        mNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clicks++;
+                mGoogleMap.clear();
+                switch (clicks % 4) {
+                    case 0:
+                        makeLoop(southLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 1:
+                        makeLoop(eastLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 2:
+                        makeLoop(northLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 3:
+                        makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
+                }
+            }
+        });
+
+        mPrev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clicks--;
+                mGoogleMap.clear();
+                switch (clicks % 4) {
+                    case 0:
+                        makeLoop(southLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 1:
+                        makeLoop(eastLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 2:
+                        makeLoop(northLoop(lat, lng, changeInLat, changeInLng));
+                        break;
+                    case 3:
+                        makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
+                }
+            }
+        });
+    }
 
     private final class MyLocationListener implements LocationListener {
 
-        private Circle mCircle;
-        private final float radOfEarth = 3959;
-        private final float constant = (float) Math.sqrt(2)/2;
-        private double lat;
-        private double lng;
-        private float changeInLat;
-        private float changeInLng;
-        int clicks = 0;
-
         @Override
         public void onLocationChanged(Location location) {
-            // called when the listener is notified with a location update from the GPS
-            clicks = 128;
-            lat = location.getLatitude();
-            lng = location.getLongitude();
-
-
-
-            String input = mEditDistance.getText().toString();
-
-            double circumference = Double.parseDouble(input);
-            float distance = (float) (circumference / Math.PI);
-            changeInLat = (float) Math.toDegrees(distance / radOfEarth);
-            changeInLng = (float) Math.toDegrees(distance / radOfEarth);
-
-
-
-            if (mPolyline != null){
-                mGoogleMap.clear();
-             }
-
-
-            makeLoop(southLoop(lat,lng,changeInLat, changeInLng));
-            //makeLoop(northLoop(lat,lng,changeInLat, changeInLng));
-            //makeLoop(eastLoop(lat,lng,changeInLat, changeInLng));
-            //makeLoop(westLoop(lat,lng,changeInLat, changeInLng));
-
-            LatLng camera = new LatLng(lat,lng);
-            mCameraPosition = new CameraPosition.Builder().target(camera)
-                    .zoom(15.5f)
-                    .bearing(0)
-                    .tilt(25)
-                    .build();
-
-            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-
-            mNext.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clicks++;
-                    mGoogleMap.clear();
-                    switch (clicks%4){
-                        case 0:makeLoop(southLoop(lat,lng,changeInLat, changeInLng));
-                          break;
-                        case 1:makeLoop(eastLoop(lat,lng,changeInLat, changeInLng));
-                            break;
-                        case 2:makeLoop(northLoop(lat,lng,changeInLat, changeInLng));
-                            break;
-                        case 3:makeLoop(westLoop(lat,lng,changeInLat, changeInLng));
-                    }
-                }
-            });
-
-            mPrev.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    clicks--;
-                    mGoogleMap.clear();
-                    switch (clicks%4) {
-                        case 0:
-                            makeLoop(southLoop(lat, lng, changeInLat, changeInLng));
-                            break;
-                        case 1:
-                            makeLoop(eastLoop(lat, lng, changeInLat, changeInLng));
-                            break;
-                        case 2:
-                            makeLoop(northLoop(lat, lng, changeInLat, changeInLng));
-                            break;
-                        case 3:
-                            makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
-                    }
-                }
-            });
+            LatLng curLocation = new LatLng(location.getLatitude(),location.getLongitude());
+            if (mMarker!=null) {
+                mMarker.remove();
+                addMarker(curLocation, 10);
+            }
+            else
+                addMarker(curLocation, 10);
         }
 
         @Override
@@ -349,6 +349,7 @@ public class MapsActivity extends AppCompatActivity {
         public void onStatusChanged(String provider, int status, Bundle extras) {
             // called when the status of the GPS provider changes
         }
+    }
 
         private ArrayList<LatLng> southLoop (double lat, double lng, float changeInLat, float changeInLng){
             ArrayList<LatLng> circle = new ArrayList<LatLng>();
@@ -447,7 +448,5 @@ public class MapsActivity extends AppCompatActivity {
             return circle;
         }
 
-    }
+
 }
-
-

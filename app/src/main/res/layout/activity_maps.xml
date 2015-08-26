@@ -52,7 +52,7 @@
         android:layout_weight="15"
         android:background="@color/black"
         android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp">
+        >
 
         <Button
             android:layout_width="0dp"
@@ -61,8 +61,18 @@
             android:id="@+id/prev"
             android:layout_gravity="left"
             android:layout_weight="50"
-            android:layout_marginRight="70dp"
+            android:layout_marginRight="30dp"
             android:layout_marginLeft="5dp"
+            />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text="Submit"
+            android:id="@+id/Submit"
+            android:layout_weight="50"
+            android:background="@color/blue"
+            android:textColor="@color/white"
             android:layout_marginBottom="10dp"/>
 
         <Button
@@ -72,9 +82,9 @@
             android:id="@+id/next"
             android:layout_gravity="right"
             android:layout_weight="50"
-            android:layout_marginLeft="70dp"
+            android:layout_marginLeft="30dp"
             android:layout_marginRight="5dp"
-            android:layout_marginBottom="10dp"/>
+            />
     </LinearLayout>
 
     <LinearLayout

@@ -42,7 +42,7 @@ public class GMapV2Direction {
                 + "%7Cvia:" + way7.latitude + "," + way7.longitude
                 + "&sensor=false&units=metric&mode="+ mode;
 
-      //  + "|via:" + way6.latitude + "," + way6.longitude
+        //  + "|via:" + way6.latitude + "," + way6.longitude
 
         try {
             HttpClient httpClient = new DefaultHttpClient();
