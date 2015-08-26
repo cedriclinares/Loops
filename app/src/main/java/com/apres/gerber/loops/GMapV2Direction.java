@@ -29,7 +29,7 @@ public class GMapV2Direction {
 
     public GMapV2Direction() { }
 
-    public Document getDocument(LatLng start, LatLng way1, LatLng way2, LatLng way3, LatLng way4, LatLng way5, LatLng way6, LatLng way7, String mode) {
+    public Document getDocument(LatLng start, LatLng way1, LatLng way2, LatLng way3, LatLng way4, String mode) {
         String url = "http://maps.googleapis.com/maps/api/directions/xml?"
                 + "origin=" + start.latitude + "," + start.longitude
                 + "&destination=" + start.latitude + "," + start.longitude
@@ -37,9 +37,9 @@ public class GMapV2Direction {
                 + "%7Cvia:" + way2.latitude + "," + way2.longitude
                 + "%7Cvia:" + way3.latitude + "," + way3.longitude
                 + "%7Cvia:" + way4.latitude + "," + way4.longitude
-                + "%7Cvia:" + way5.latitude + "," + way5.longitude
-                + "%7Cvia:" + way6.latitude + "," + way6.longitude
-                + "%7Cvia:" + way7.latitude + "," + way7.longitude
+               // + "%7Cvia:" + way5.latitude + "," + way5.longitude
+               // + "%7Cvia:" + way6.latitude + "," + way6.longitude
+               // + "%7Cvia:" + way7.latitude + "," + way7.longitude
                 + "&sensor=false&units=metric&mode="+ mode;
 
         //  + "|via:" + way6.latitude + "," + way6.longitude

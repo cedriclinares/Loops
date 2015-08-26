@@ -23,10 +23,10 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
     public static final String Waypoint4_Long = "waypoint4_long";
     public static final String Waypoint5_Lat = "waypoint5_lat";
     public static final String Waypoint5_Long = "waypoint5_long";
-    public static final String Waypoint6_Lat = "waypoint6_lat";
-    public static final String Waypoint6_Long = "waypoint6_long";
-    public static final String Waypoint7_Lat = "waypoint7_lat";
-    public static final String Waypoint7_Long = "waypoint7_long";
+    //public static final String Waypoint6_Lat = "waypoint6_lat";
+    //public static final String Waypoint6_Long = "waypoint6_long";
+    //public static final String Waypoint7_Lat = "waypoint7_lat";
+    //public static final String Waypoint7_Long = "waypoint7_long";
 
     public static final String DIRECTIONS_MODE = "directions_mode";
 
@@ -78,12 +78,12 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
             LatLng waypoint2 = new LatLng(Double.valueOf(paramMap.get(Waypoint2_Lat)) , Double.valueOf(paramMap.get(Waypoint2_Long)));
             LatLng waypoint3 = new LatLng(Double.valueOf(paramMap.get(Waypoint3_Lat)) , Double.valueOf(paramMap.get(Waypoint3_Long)));
             LatLng waypoint4 = new LatLng(Double.valueOf(paramMap.get(Waypoint4_Lat)) , Double.valueOf(paramMap.get(Waypoint4_Long)));
-            LatLng waypoint5 = new LatLng(Double.valueOf(paramMap.get(Waypoint5_Lat)) , Double.valueOf(paramMap.get(Waypoint5_Long)));
-            LatLng waypoint6 = new LatLng(Double.valueOf(paramMap.get(Waypoint6_Lat)) , Double.valueOf(paramMap.get(Waypoint6_Long)));
-            LatLng waypoint7 = new LatLng(Double.valueOf(paramMap.get(Waypoint7_Lat)) , Double.valueOf(paramMap.get(Waypoint7_Long)));
+            //LatLng waypoint5 = new LatLng(Double.valueOf(paramMap.get(Waypoint5_Lat)) , Double.valueOf(paramMap.get(Waypoint5_Long)));
+            //LatLng waypoint6 = new LatLng(Double.valueOf(paramMap.get(Waypoint6_Lat)) , Double.valueOf(paramMap.get(Waypoint6_Long)));
+            //LatLng waypoint7 = new LatLng(Double.valueOf(paramMap.get(Waypoint7_Lat)) , Double.valueOf(paramMap.get(Waypoint7_Long)));
 
             GMapV2Direction md = new GMapV2Direction();
-            Document doc = md.getDocument(fromPosition, waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6, waypoint7, paramMap.get(DIRECTIONS_MODE));
+            Document doc = md.getDocument(fromPosition, waypoint1, waypoint2, waypoint3, waypoint4, paramMap.get(DIRECTIONS_MODE));
             ArrayList<LatLng> directionPoints = md.getDirection(doc);
 
             return directionPoints;
