@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -42,6 +43,10 @@ import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity {
 
+
+    private LinearLayout mconfirmation;
+    private LinearLayout mfindLoops;
+    private LinearLayout mapFragment;
     private EditText mEditDistance;
     private Button mButton;
     private Button mSubmit;
@@ -58,6 +63,9 @@ public class MapsActivity extends AppCompatActivity {
     private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
     private Marker mMarker;
+    private MenuItem mMenuItem;
+    private LinearLayout.LayoutParams invisible;
+    private LinearLayout.LayoutParams visible;
 
     private final float radOfEarth = 3959;
     private final float constant = (float) Math.sqrt(2) / 2;
@@ -76,22 +84,33 @@ public class MapsActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_maps);
 
+        mMenuItem = (MenuItem) findViewById(android.R.id.home);
+
         ActionBar actionBar = getSupportActionBar();
         actionBar.setHomeButtonEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
+        super.onOptionsItemSelected(mMenuItem);
 
+        mconfirmation = (LinearLayout) findViewById(R.id.confirmaton);
+        mfindLoops = (LinearLayout) findViewById(R.id.findLoops);
+        mapFragment = (LinearLayout) findViewById(R.id.mapFragment);
         mEditDistance = (EditText) findViewById(R.id.edt_text);
         mSubmit = (Button) findViewById(R.id.Submit);
         mButton = (Button) findViewById(R.id.loop_button);
         mNext = (Button) findViewById(R.id.next);
         mPrev = (Button) findViewById(R.id.prev);
 
+
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         //mapFragment.getMapAsync(this);
         mGoogleMap = mapFragment.getMap();
         mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+
+        makeInvisible(mconfirmation);
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         mLocationListener = new MyLocationListener();
@@ -100,16 +119,20 @@ public class MapsActivity extends AppCompatActivity {
         Criteria criteria = new Criteria();
         provider = locationManager.getBestProvider(criteria, false);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
-
         location = locationManager.getLastKnownLocation(provider);
 
-        LatLng camera = new LatLng(location.getLatitude(),location.getLongitude());
+    try {
+        LatLng camera = new LatLng(location.getLatitude(), location.getLongitude());
         mCameraPosition = new CameraPosition.Builder().target(camera)
                 .zoom(15.5f)
                 .bearing(0)
                 .tilt(25)
                 .build();
         mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
+        addMarker(camera, 1);
+        } catch (NullPointerException e) {
+            Toast.makeText(this, "No Location Found", Toast.LENGTH_LONG).show();
+        }
 
         mEditDistance.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -122,7 +145,8 @@ public class MapsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 location = locationManager.getLastKnownLocation(provider);
-
+                makeInvisible(mfindLoops);
+                makeVisible(mconfirmation);
                 try {
                     Double.parseDouble(mEditDistance.getText().toString());
                     // Initialize the location fields
@@ -141,11 +165,29 @@ public class MapsActivity extends AppCompatActivity {
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MapsActivity.this, "Submit clicked", Toast.LENGTH_LONG).show();
+                //Toast.makeText(MapsActivity.this, "Submit clicked", Toast.LENGTH_LONG).show();
                 location = locationManager.getLastKnownLocation(provider);
-                mLocationListener.onLocationChanged(location);
+                makeInvisible(mconfirmation);
+              //  mLocationListener.onLocationChanged(location);
             }
         });
+    }
+
+    void makeInvisible(LinearLayout linearLayout){
+        invisible = new LinearLayout.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT, 0);
+        invisible.weight=0;
+        linearLayout.setLayoutParams(invisible);
+    }
+
+    void makeVisible(LinearLayout linearLayout) {
+        visible = new LinearLayout.LayoutParams(
+                ActionBar.LayoutParams.WRAP_CONTENT, 0);
+        if (linearLayout == mconfirmation)
+            visible.weight = 45;
+        else
+            visible.weight = 100;
+        linearLayout.setLayoutParams(visible);
     }
 
     public void handleGetDirectionsResult(ArrayList<LatLng> directionPoints) {
@@ -208,23 +250,31 @@ public class MapsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        switch (id) {
-
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Toast.makeText(this, "Home Button Pressed", Toast.LENGTH_LONG);
+                if(mconfirmation.getLayoutParams()==visible && mfindLoops.getLayoutParams()!=visible) {
+                    mconfirmation.setLayoutParams(invisible);
+                    mfindLoops.setLayoutParams(visible);
+                }
+                else if (mfindLoops.getLayoutParams()==visible){}
+                else
+                    mconfirmation.setLayoutParams(visible);
+                return true;
             case R.id.option1:
                 //TODO add what to do
-                break;
+                return true;
 
             case R.id.option2:
                 //TODO add what to do
-                break;
+                return true;
 
             case R.id.option3:
                 //TODO add what to do
-                break;
+                return true;
+            default:
+                return false;
         }
-
-        return true;
     }
 
     private boolean isGooglePlayServicesAvailable() {

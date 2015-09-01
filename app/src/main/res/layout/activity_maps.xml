@@ -3,14 +3,17 @@
      android:layout_width="fill_parent"
      android:layout_height="fill_parent"
      android:orientation="vertical"
-     android:background="@color/black">
+     android:background="@color/black"
+     android:id="@+id/main">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="7"
-        android:background="@color/black">
+        android:layout_height="0dp"
+        android:background="@color/black"
+        android:id="@+id/findLoops"
+        android:weightSum="1"
+        android:layout_weight="50">
 
         <EditText
             android:layout_width="fill_parent"
@@ -18,30 +21,30 @@
             android:text="Distance"
             android:id="@+id/edt_text"
             android:background="@color/grey_light"
-            android:layout_weight="30"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="0dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:inputType="numberDecimal"
             android:digits=".0123456789"
             android:imeOptions="actionDone"
-            android:singleLine="true">
+            android:singleLine="true"
+            android:layout_weight="0.77">
             </EditText>
 
         <Button
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:text="Find Loops"
             android:id="@+id/loop_button"
-            android:layout_weight="30"
             android:background="@color/green"
             android:textColor="@color/turquoise"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="0dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
-            android:longClickable="true"/>
+            android:longClickable="true"
+            />
 
     </LinearLayout>
 
@@ -49,14 +52,14 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="15"
         android:background="@color/black"
-        android:layout_marginBottom="5dp"
-        >
+        android:id="@+id/confirmaton"
+        android:layout_marginTop="10dp"
+        android:layout_weight="20">
 
         <Button
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:text="Prev"
             android:id="@+id/prev"
             android:layout_gravity="left"
@@ -73,11 +76,11 @@
             android:layout_weight="50"
             android:background="@color/blue"
             android:textColor="@color/white"
-            android:layout_marginBottom="10dp"/>
+            android:layout_marginTop="5dp"/>
 
         <Button
             android:layout_width="0dp"
-            android:layout_height="40dp"
+            android:layout_height="wrap_content"
             android:text="Next"
             android:id="@+id/next"
             android:layout_gravity="right"
@@ -92,7 +95,8 @@
         android:layout_height="0dp"
         android:layout_weight="150"
         android:orientation="vertical"
-        android:background="@color/black">
+        android:background="@color/black"
+        android:id="@+id/mapFragment">
 
         <fragment xmlns:tools="http://schemas.android.com/tools"
               android:layout_width="fill_parent"
