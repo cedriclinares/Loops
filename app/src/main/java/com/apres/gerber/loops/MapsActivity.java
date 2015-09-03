@@ -182,11 +182,11 @@ public class MapsActivity extends AppCompatActivity {
 
     void makeVisible(LinearLayout linearLayout) {
         visible = new LinearLayout.LayoutParams(
-                ActionBar.LayoutParams.WRAP_CONTENT, 0);
+                ActionBar.LayoutParams.MATCH_PARENT, 0);
         if (linearLayout == mconfirmation)
-            visible.weight = 45;
-        else
-            visible.weight = 100;
+            visible.weight = 20;
+        else if (linearLayout==mfindLoops)
+            visible.weight = 50;
         linearLayout.setLayoutParams(visible);
     }
 
@@ -254,12 +254,12 @@ public class MapsActivity extends AppCompatActivity {
             case android.R.id.home:
                 Toast.makeText(this, "Home Button Pressed", Toast.LENGTH_LONG);
                 if(mconfirmation.getLayoutParams()==visible && mfindLoops.getLayoutParams()!=visible) {
-                    mconfirmation.setLayoutParams(invisible);
-                    mfindLoops.setLayoutParams(visible);
+                    makeInvisible(mconfirmation);
+                    makeVisible(mfindLoops);
                 }
                 else if (mfindLoops.getLayoutParams()==visible){}
                 else
-                    mconfirmation.setLayoutParams(visible);
+                    makeVisible(mconfirmation);
                 return true;
             case R.id.option1:
                 //TODO add what to do
