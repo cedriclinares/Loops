@@ -18,7 +18,7 @@
         <EditText
             android:layout_width="fill_parent"
             android:layout_height="0dp"
-            android:text="Distance"
+            android:text="Distance (Miles)"
             android:id="@+id/edt_text"
             android:background="@color/grey_light"
             android:layout_marginTop="5dp"
@@ -28,7 +28,7 @@
             android:inputType="numberDecimal"
             android:digits=".0123456789"
             android:imeOptions="actionDone"
-            android:singleLine="true"
+            android:singleLine="false"
             android:layout_weight="0.77">
             </EditText>
 
