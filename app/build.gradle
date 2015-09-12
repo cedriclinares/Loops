@@ -3,9 +3,9 @@ apply plugin: 'com.android.application'
 android {
     signingConfigs {
         release {
-            storeFile file("/Users/cedriclinares/AndroidStudioProjects/Loops/loops.keystore.jks")
+            storeFile file("/Users/cedriclinares/AndroidStudioProjects/Loopstest.jks")
             storePassword "funkmaster123"
-            keyAlias "loopskey"
+            keyAlias "loops"
             keyPassword "funkmaster123"
         }
     }
@@ -15,7 +15,7 @@ android {
         applicationId "com.apres.gerber.loops"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 4
+        versionCode 6
         versionName "1.2"
     }
     buildTypes {

@@ -12,24 +12,18 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.Circle;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -56,11 +50,9 @@ public class MapsActivity extends AppCompatActivity {
     private String provider;
     private LocationManager locationManager;
     private Location location;
-    private GoogleApiClient mGoogleApiClient;
     private LocationListener mLocationListener;
     PolylineOptions rectLine;
     private Polyline mPolyline;
-    private LatLngBounds mLatLngBounds;
     private CameraPosition mCameraPosition;
     private Marker mMarker;
     private MenuItem mMenuItem;
@@ -102,11 +94,8 @@ public class MapsActivity extends AppCompatActivity {
         mNext = (Button) findViewById(R.id.next);
         mPrev = (Button) findViewById(R.id.prev);
 
-
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        //mapFragment.getMapAsync(this);
         mGoogleMap = mapFragment.getMap();
         mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
 
@@ -165,10 +154,8 @@ public class MapsActivity extends AppCompatActivity {
         mSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Toast.makeText(MapsActivity.this, "Submit clicked", Toast.LENGTH_LONG).show();
                 location = locationManager.getLastKnownLocation(provider);
                 makeInvisible(mconfirmation);
-              //  mLocationListener.onLocationChanged(location);
             }
         });
     }
@@ -299,20 +286,12 @@ public class MapsActivity extends AppCompatActivity {
     private void makeLoop (ArrayList<LatLng> circle){
         findDirections(circle, GMapV2Direction.MODE_WALKING);
         addMarker(circle.get(0), 1);
-        /*addMarker(circle.get(1), 2);
-        addMarker(circle.get(2), 3);
-        addMarker(circle.get(3), 4);
-        addMarker(circle.get(4), 5);
-        addMarker(circle.get(5), 6);
-        addMarker(circle.get(6), 7);
-        addMarker(circle.get(7), 8);*/
     }
 
     private void calcLoop(){
         clicks = 128;
         lat = location.getLatitude();
         lng = location.getLongitude();
-
 
         String input = mEditDistance.getText().toString();
 
