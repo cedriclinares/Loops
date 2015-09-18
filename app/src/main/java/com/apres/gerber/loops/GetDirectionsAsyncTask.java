@@ -33,6 +33,7 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
     private MapsActivity activity;
     private Exception exception;
     private ProgressDialog progressDialog;
+    public static int distance;
 
     public GetDirectionsAsyncTask(MapsActivity activity)
     {
@@ -53,17 +54,12 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
         progressDialog.dismiss();
         if (exception == null)
         {
+            MapsActivity.meters=distance;
             activity.handleGetDirectionsResult(result);
         }
         else
         {
             processException();
-        }
-        try {
-            Thread.sleep(115);
-        } catch (InterruptedException e) {
-            Log.w("Main Thread", "Sleeping");
-            e.printStackTrace();
         }
     }
 
@@ -84,8 +80,8 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
 
             GMapV2Direction md = new GMapV2Direction();
             Document doc = md.getDocument(fromPosition, waypoint1, waypoint2, waypoint3, waypoint4, waypoint5, waypoint6, waypoint7, paramMap.get(DIRECTIONS_MODE));
+            distance = md.getDistanceValue(doc);
             ArrayList<LatLng> directionPoints = md.getDirection(doc);
-
             return directionPoints;
         }
         catch (Exception e)
@@ -97,6 +93,6 @@ public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Objec
 
     private void processException()
     {
-        Toast.makeText(activity, "Error retriving data", Toast.LENGTH_LONG).show();
+        Toast.makeText(activity, "No Route Found. Press Next or Prev", Toast.LENGTH_LONG).show();
     }
 }

@@ -1,6 +1,7 @@
 package com.apres.gerber.loops;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -37,10 +39,8 @@ import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity {
 
-
     private LinearLayout mconfirmation;
     private LinearLayout mfindLoops;
-    private LinearLayout mapFragment;
     private EditText mEditDistance;
     private Button mButton;
     private Button mSubmit;
@@ -58,11 +58,14 @@ public class MapsActivity extends AppCompatActivity {
     private MenuItem mMenuItem;
     private LinearLayout.LayoutParams invisible;
     private LinearLayout.LayoutParams visible;
+    private TextView mTextview;
 
-    private final float radOfEarth = 3959;
+    private final float radOfEarth = 4000;
     private final float constant = (float) Math.sqrt(2) / 2;
     private double lat;
     private double lng;
+    private double miles;
+    public static int meters;
     private float changeInLat;
     private float changeInLng;
     int clicks = 0;
@@ -87,12 +90,12 @@ public class MapsActivity extends AppCompatActivity {
 
         mconfirmation = (LinearLayout) findViewById(R.id.confirmaton);
         mfindLoops = (LinearLayout) findViewById(R.id.findLoops);
-        mapFragment = (LinearLayout) findViewById(R.id.mapFragment);
         mEditDistance = (EditText) findViewById(R.id.edt_text);
         mSubmit = (Button) findViewById(R.id.Submit);
         mButton = (Button) findViewById(R.id.loop_button);
         mNext = (Button) findViewById(R.id.next);
         mPrev = (Button) findViewById(R.id.prev);
+        mTextview = (TextView) findViewById(R.id.distance);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -171,9 +174,9 @@ public class MapsActivity extends AppCompatActivity {
         visible = new LinearLayout.LayoutParams(
                 ActionBar.LayoutParams.MATCH_PARENT, 0);
         if (linearLayout == mconfirmation)
-            visible.weight = 20;
+            visible.weight = 30;
         else if (linearLayout==mfindLoops)
-            visible.weight = 50;
+            visible.weight = 40;
         linearLayout.setLayoutParams(visible);
     }
 
@@ -187,6 +190,10 @@ public class MapsActivity extends AppCompatActivity {
         }
 
         mPolyline = this.mGoogleMap.addPolyline(rectLine);
+
+        meters = GetDirectionsAsyncTask.distance;
+        miles = (double) meters/1600;
+        mTextview.setText("Distance: " + miles + " mi");
 
     }
 
@@ -274,7 +281,6 @@ public class MapsActivity extends AppCompatActivity {
         }
     }
 
-
     private void addMarker(LatLng point, int order){
         mMarker = mGoogleMap.addMarker(new MarkerOptions()
                 .position(point)
@@ -286,10 +292,17 @@ public class MapsActivity extends AppCompatActivity {
     private void makeLoop (ArrayList<LatLng> circle){
         findDirections(circle, GMapV2Direction.MODE_WALKING);
         addMarker(circle.get(0), 1);
+       // addMarker(circle.get(1), 2)
+       // addMarker(circle.get(2), 3);
+       // addMarker(circle.get(3), 4);
+       // addMarker(circle.get(4), 5);
+       // addMarker(circle.get(5), 6);
+       // addMarker(circle.get(6), 7);
+       // addMarker(circle.get(7), 8);
     }
 
     private void calcLoop(){
-        clicks = 128;
+        clicks = 1028;
         lat = location.getLatitude();
         lng = location.getLongitude();
 
@@ -325,6 +338,7 @@ public class MapsActivity extends AppCompatActivity {
                         break;
                     case 3:
                         makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
+                        break;
                 }
             }
         });
@@ -346,6 +360,7 @@ public class MapsActivity extends AppCompatActivity {
                         break;
                     case 3:
                         makeLoop(westLoop(lat, lng, changeInLat, changeInLng));
+                        break;
                 }
             }
         });

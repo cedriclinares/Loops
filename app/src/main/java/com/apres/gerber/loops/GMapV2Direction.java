@@ -42,8 +42,6 @@ public class GMapV2Direction {
                 + "%7Cvia:" + way7.latitude + "," + way7.longitude
                 + "&sensor=false&units=metric&mode="+ mode;
 
-        //  + "|via:" + way6.latitude + "," + way6.longitude
-
         try {
             HttpClient httpClient = new DefaultHttpClient();
             HttpContext localContext = new BasicHttpContext();
@@ -88,11 +86,12 @@ public class GMapV2Direction {
 
     public int getDistanceValue (Document doc) {
         NodeList nl1 = doc.getElementsByTagName("distance");
-        Node node1 = nl1.item(0);
+        Node node1 = nl1.item(nl1.getLength()-1);
         NodeList nl2 = node1.getChildNodes();
         Node node2 = nl2.item(getNodeIndex(nl2, "value"));
+        int distance = Integer.parseInt(node2.getTextContent());
         Log.i("DistanceValue", node2.getTextContent());
-        return Integer.parseInt(node2.getTextContent());
+        return distance;
     }
 
     public String getStartAddress (Document doc) {
@@ -150,7 +149,6 @@ public class GMapV2Direction {
                 listGeopoints.add(new LatLng(lat, lng));
             }
         }
-
         return listGeopoints;
     }
 
