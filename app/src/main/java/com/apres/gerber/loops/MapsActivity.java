@@ -60,7 +60,7 @@ public class MapsActivity extends AppCompatActivity {
     private LinearLayout.LayoutParams visible;
     private TextView mTextview;
 
-    private final float radOfEarth = 4000;
+    private final float radOfEarth = 3950;
     private final float constant = (float) Math.sqrt(2) / 2;
     private double lat;
     private double lng;
@@ -113,15 +113,15 @@ public class MapsActivity extends AppCompatActivity {
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
         location = locationManager.getLastKnownLocation(provider);
 
-    try {
-        LatLng camera = new LatLng(location.getLatitude(), location.getLongitude());
-        mCameraPosition = new CameraPosition.Builder().target(camera)
-                .zoom(15.5f)
-                .bearing(0)
-                .tilt(25)
-                .build();
-        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
-        addMarker(camera, 1);
+        try {
+            LatLng camera = new LatLng(location.getLatitude(), location.getLongitude());
+            mCameraPosition = new CameraPosition.Builder().target(camera)
+                    .zoom(15.5f)
+                    .bearing(0)
+                    .tilt(25)
+                    .build();
+            mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(mCameraPosition));
+            addMarker(camera, 1);
         } catch (NullPointerException e) {
             Toast.makeText(this, "No Location Found", Toast.LENGTH_LONG).show();
         }
@@ -137,17 +137,19 @@ public class MapsActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 location = locationManager.getLastKnownLocation(provider);
-                makeInvisible(mfindLoops);
-                makeVisible(mconfirmation);
+
                 try {
                     Double.parseDouble(mEditDistance.getText().toString());
                     // Initialize the location fields
-                        if (location != null)
-                            calcLoop();
-                        else
-                            Toast.makeText(MapsActivity.this, "Cannot Find Location", Toast.LENGTH_LONG).show();
+                    if (location != null) {
+                        makeInvisible(mfindLoops);
+                        makeVisible(mconfirmation);
+                        calcLoop();
                     }
-                 catch (NumberFormatException e) {
+                    else
+                        Toast.makeText(MapsActivity.this, "Cannot Find Location", Toast.LENGTH_LONG).show();
+                }
+                catch (NumberFormatException e) {
                     Log.i("Check EditText","Input is not a number");
                     Toast.makeText(MapsActivity.this, "Must input a number", Toast.LENGTH_LONG).show();
                 }
@@ -291,14 +293,14 @@ public class MapsActivity extends AppCompatActivity {
 
     private void makeLoop (ArrayList<LatLng> circle){
         findDirections(circle, GMapV2Direction.MODE_WALKING);
-        addMarker(circle.get(0), 1);
-       // addMarker(circle.get(1), 2)
-       // addMarker(circle.get(2), 3);
-       // addMarker(circle.get(3), 4);
-       // addMarker(circle.get(4), 5);
-       // addMarker(circle.get(5), 6);
-       // addMarker(circle.get(6), 7);
-       // addMarker(circle.get(7), 8);
+         addMarker(circle.get(0), 1);
+         addMarker(circle.get(1), 2);
+         addMarker(circle.get(2), 3);
+         addMarker(circle.get(3), 4);
+         addMarker(circle.get(4), 5);
+         addMarker(circle.get(5), 6);
+         addMarker(circle.get(6), 7);
+         addMarker(circle.get(7), 8);
     }
 
     private void calcLoop(){
@@ -308,7 +310,7 @@ public class MapsActivity extends AppCompatActivity {
 
         String input = mEditDistance.getText().toString();
 
-        double circumference = Double.parseDouble(input);
+        double circumference = Double.parseDouble(input)-Double.parseDouble(input)*.1;
         float distance = (float) (circumference / Math.PI);
         changeInLat = (float) Math.toDegrees(distance / radOfEarth);
         changeInLng = (float) Math.toDegrees(distance / radOfEarth);
@@ -395,102 +397,102 @@ public class MapsActivity extends AppCompatActivity {
         }
     }
 
-        private ArrayList<LatLng> southLoop (double lat, double lng, float changeInLat, float changeInLng){
-            ArrayList<LatLng> circle = new ArrayList<LatLng>();
+    private ArrayList<LatLng> southLoop (double lat, double lng, float changeInLat, float changeInLng){
+        ArrayList<LatLng> circle = new ArrayList<LatLng>();
 
-            LatLng point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat - changeInLat*(1-constant)/2, lng - changeInLng*constant/2);
-            LatLng point3 = new LatLng(lat - changeInLat/2, lng - changeInLng/2);
-            LatLng point4 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng - changeInLng*constant/2);
-            LatLng point5 = new LatLng(lat - changeInLat, lng);
-            LatLng point6 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng + changeInLng*constant/2);
-            LatLng point7 = new LatLng(lat - changeInLat/2, lng + changeInLng/2);
-            LatLng point8 = new LatLng(lat - changeInLat*(1-constant)/2, lng + changeInLng*constant/2);
+        LatLng point1 = new LatLng(lat, lng);
+        LatLng point2 = new LatLng(lat - changeInLat*(1-constant)/2, lng - changeInLng*constant/2);
+        LatLng point3 = new LatLng(lat - changeInLat/2, lng - changeInLng/2);
+        LatLng point4 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng - changeInLng*constant/2);
+        LatLng point5 = new LatLng(lat - changeInLat, lng);
+        LatLng point6 = new LatLng(lat - changeInLat/2-changeInLat*constant/2, lng + changeInLng*constant/2);
+        LatLng point7 = new LatLng(lat - changeInLat/2, lng + changeInLng/2);
+        LatLng point8 = new LatLng(lat - changeInLat*(1-constant)/2, lng + changeInLng*constant/2);
 
-            circle.add(0, point1);
-            circle.add(1, point2);
-            circle.add(2, point3);
-            circle.add(3, point4);
-            circle.add(4, point5);
-            circle.add(5, point6);
-            circle.add(6, point7);
-            circle.add(7, point8);
+        circle.add(0, point1);
+        circle.add(1, point2);
+        circle.add(2, point3);
+        circle.add(3, point4);
+        circle.add(4, point5);
+        circle.add(5, point6);
+        circle.add(6, point7);
+        circle.add(7, point8);
 
-            return circle;
-        }
+        return circle;
+    }
 
-        private ArrayList<LatLng> northLoop (double lat, double lng, float changeInLat, float changeInLng){
-            ArrayList<LatLng> circle = new ArrayList<LatLng>();
+    private ArrayList<LatLng> northLoop (double lat, double lng, float changeInLat, float changeInLng){
+        ArrayList<LatLng> circle = new ArrayList<LatLng>();
 
-            LatLng point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat + changeInLat*(1-constant)/2, lng - changeInLng*constant/2);
-            LatLng point3 = new LatLng(lat + changeInLat/2, lng - changeInLng/2);
-            LatLng point4 = new LatLng(lat + changeInLat/2 + changeInLat*constant/2, lng - changeInLng*constant/2);
-            LatLng point5 = new LatLng(lat + changeInLat, lng);
-            LatLng point6 = new LatLng(lat + changeInLat/2 + changeInLat*constant/2, lng + changeInLng*constant/2);
-            LatLng point7 = new LatLng(lat + changeInLat/2, lng + changeInLng/2);
-            LatLng point8 = new LatLng(lat + changeInLat*(1-constant)/2, lng + changeInLng*constant/2);
+        LatLng point1 = new LatLng(lat, lng);
+        LatLng point2 = new LatLng(lat + changeInLat*(1-constant)/2, lng - changeInLng*constant/2);
+        LatLng point3 = new LatLng(lat + changeInLat/2, lng - changeInLng/2);
+        LatLng point4 = new LatLng(lat + changeInLat/2 + changeInLat*constant/2, lng - changeInLng*constant/2);
+        LatLng point5 = new LatLng(lat + changeInLat, lng);
+        LatLng point6 = new LatLng(lat + changeInLat/2 + changeInLat*constant/2, lng + changeInLng*constant/2);
+        LatLng point7 = new LatLng(lat + changeInLat/2, lng + changeInLng/2);
+        LatLng point8 = new LatLng(lat + changeInLat*(1-constant)/2, lng + changeInLng*constant/2);
 
-            circle.add(0, point1);
-            circle.add(1, point2);
-            circle.add(2, point3);
-            circle.add(3, point4);
-            circle.add(4, point5);
-            circle.add(5, point6);
-            circle.add(6, point7);
-            circle.add(7, point8);
+        circle.add(0, point1);
+        circle.add(1, point2);
+        circle.add(2, point3);
+        circle.add(3, point4);
+        circle.add(4, point5);
+        circle.add(5, point6);
+        circle.add(6, point7);
+        circle.add(7, point8);
 
-            return circle;
-        }
+        return circle;
+    }
 
-        private ArrayList<LatLng> eastLoop (double lat, double lng, float changeInLat, float changeInLng){
-            ArrayList<LatLng> circle = new ArrayList<LatLng>();
+    private ArrayList<LatLng> eastLoop (double lat, double lng, float changeInLat, float changeInLng){
+        ArrayList<LatLng> circle = new ArrayList<LatLng>();
 
 
-            LatLng point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat - changeInLat*constant/2,lng + changeInLng*(1-constant)/2);
-            LatLng point3 = new LatLng(lat - changeInLat/2, lng + changeInLng/2);
-            LatLng point4 = new LatLng(lat - changeInLat*constant/2, lng + changeInLng/2 + changeInLng*constant/2);
-            LatLng point5 = new LatLng(lat,lng + changeInLng);
-            LatLng point6 = new LatLng(lat + changeInLat*constant/2, lng + changeInLng/2 + changeInLng*constant/2);
-            LatLng point7 = new LatLng(lat + changeInLat/2, lng + changeInLng/2);
-            LatLng point8 = new LatLng(lat + changeInLat*constant/2, lng + changeInLng*(1-constant)/2);
+        LatLng point1 = new LatLng(lat, lng);
+        LatLng point2 = new LatLng(lat - changeInLat*constant/2,lng + changeInLng*(1-constant)/2);
+        LatLng point3 = new LatLng(lat - changeInLat/2, lng + changeInLng/2);
+        LatLng point4 = new LatLng(lat - changeInLat*constant/2, lng + changeInLng/2 + changeInLng*constant/2);
+        LatLng point5 = new LatLng(lat,lng + changeInLng);
+        LatLng point6 = new LatLng(lat + changeInLat*constant/2, lng + changeInLng/2 + changeInLng*constant/2);
+        LatLng point7 = new LatLng(lat + changeInLat/2, lng + changeInLng/2);
+        LatLng point8 = new LatLng(lat + changeInLat*constant/2, lng + changeInLng*(1-constant)/2);
 
-            circle.add(0, point1);
-            circle.add(1, point2);
-            circle.add(2, point3);
-            circle.add(3, point4);
-            circle.add(4, point5);
-            circle.add(5, point6);
-            circle.add(6, point7);
-            circle.add(7, point8);
+        circle.add(0, point1);
+        circle.add(1, point2);
+        circle.add(2, point3);
+        circle.add(3, point4);
+        circle.add(4, point5);
+        circle.add(5, point6);
+        circle.add(6, point7);
+        circle.add(7, point8);
 
-            return circle;
-        }
+        return circle;
+    }
 
-        private ArrayList<LatLng> westLoop (double lat, double lng, float changeInLat, float changeInLng){
-            ArrayList<LatLng> circle = new ArrayList<LatLng>();
+    private ArrayList<LatLng> westLoop (double lat, double lng, float changeInLat, float changeInLng){
+        ArrayList<LatLng> circle = new ArrayList<LatLng>();
 
-            LatLng point1 = new LatLng(lat, lng);
-            LatLng point2 = new LatLng(lat - changeInLat*constant/2,lng - changeInLng*(1-constant)/2);
-            LatLng point3 = new LatLng(lat - changeInLat/2, lng - changeInLng/2);
-            LatLng point4 = new LatLng(lat - changeInLat*constant/2, lng - changeInLng/2 - changeInLng*constant/2);
-            LatLng point5 = new LatLng(lat,lng - changeInLng);
-            LatLng point6 = new LatLng(lat + changeInLat*constant/2, lng - changeInLng/2 - changeInLng*constant/2);
-            LatLng point7 = new LatLng(lat + changeInLat/2, lng - changeInLng/2);
-            LatLng point8 = new LatLng(lat + changeInLat*constant/2, lng - changeInLng*(1-constant)/2);
+        LatLng point1 = new LatLng(lat, lng);
+        LatLng point2 = new LatLng(lat - changeInLat*constant/2,lng - changeInLng*(1-constant)/2);
+        LatLng point3 = new LatLng(lat - changeInLat/2, lng - changeInLng/2);
+        LatLng point4 = new LatLng(lat - changeInLat*constant/2, lng - changeInLng/2 - changeInLng*constant/2);
+        LatLng point5 = new LatLng(lat,lng - changeInLng);
+        LatLng point6 = new LatLng(lat + changeInLat*constant/2, lng - changeInLng/2 - changeInLng*constant/2);
+        LatLng point7 = new LatLng(lat + changeInLat/2, lng - changeInLng/2);
+        LatLng point8 = new LatLng(lat + changeInLat*constant/2, lng - changeInLng*(1-constant)/2);
 
-            circle.add(0, point1);
-            circle.add(1, point2);
-            circle.add(2, point3);
-            circle.add(3, point4);
-            circle.add(4, point5);
-            circle.add(5, point6);
-            circle.add(6, point7);
-            circle.add(7, point8);
+        circle.add(0, point1);
+        circle.add(1, point2);
+        circle.add(2, point3);
+        circle.add(3, point4);
+        circle.add(4, point5);
+        circle.add(5, point6);
+        circle.add(6, point7);
+        circle.add(7, point8);
 
-            return circle;
-        }
+        return circle;
+    }
 
 
 }

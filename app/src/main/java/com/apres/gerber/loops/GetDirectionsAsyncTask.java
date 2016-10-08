@@ -1,13 +1,13 @@
 package com.apres.gerber.loops;
 
-import java.util.ArrayList;
-import java.util.Map;
-import org.w3c.dom.Document;
-import com.google.android.gms.maps.model.LatLng;
-import android.app.ProgressDialog;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
+        import java.util.ArrayList;
+        import java.util.Map;
+        import org.w3c.dom.Document;
+        import com.google.android.gms.maps.model.LatLng;
+        import android.app.ProgressDialog;
+        import android.os.AsyncTask;
+        import android.util.Log;
+        import android.widget.Toast;
 
 public class GetDirectionsAsyncTask extends AsyncTask<Map<String, String>, Object, ArrayList<LatLng>>
 {
